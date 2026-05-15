@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Корочки.есть — Главная</title>
+<link rel="stylesheet" href="shared.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+.hero {
+  padding: 36px 20px 20px;
+  text-align: center;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(232,160,69,0.12); border: 1px solid rgba(232,160,69,0.25);
+  color: var(--accent); padding: 5px 14px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  margin-bottom: 16px; text-transform: uppercase;
+}
+.hero-title {
+  font-size: 32px; font-weight: 800; line-height: 1.15;
+  font-family: 'Raleway', sans-serif; margin-bottom: 12px;
+}
+.hero-title span { color: var(--accent); }
+.hero-desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 28px; }
+
+/* Slider */
+.slider-wrap {
+  margin: 0 0 32px;
+  position: relative; overflow: hidden;
+  border-radius: 0;
+}
+.slider-track {
+  display: flex; transition: transform 0.5s cubic-bezier(.77,0,.18,1);
+}
+.slide {
+  min-width: 100%; height: 210px; flex-shrink: 0;
+  position: relative; overflow: hidden;
+  display: flex; align-items: flex-end;
+}
+.slide-bg {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 80px;
+}
+.slide-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(15,14,23,0.85) 0%, transparent 60%);
+}
+.slide-content {
+  position: relative; padding: 16px 20px; z-index: 2;
+}
+.slide-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 4px;
+}
+.slide-title { font-size: 17px; font-weight: 700; font-family: 'Raleway', sans-serif; }
+.slide-sub { font-size: 12px; color: rgba(240,236,230,0.7); margin-top: 2px; }
+
+.slider-controls {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 100%; display: flex; justify-content: space-between;
+  padding: 0 10px; pointer-events: none; z-index: 10;
+}
+.slider-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(15,14,23,0.7); border: 1px solid rgba(255,255,255,0.15);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; pointer-events: all; transition: background 0.2s;
+  font-size: 18px;
+}
+.slider-btn:hover { background: rgba(232,160,69,0.8); }
+.slider-dots {
+  display: flex; justify-content: center; gap: 6px;
+  padding: 10px 0 0; position: absolute; bottom: 12px; width: 100%;
+}
+.dot {
+  width: 6px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.3);
+  cursor: pointer; transition: all 0.3s;
+}
+.dot.active { width: 18px; background: var(--accent); }
+
+/* Features */
+.features { padding: 0 20px; }
+.feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px; }
+.feat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 14px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.feat-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(232,160,69,0.12); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.feat-name { font-size: 13px; font-weight: 700; font-family: 'Raleway', sans-serif; }
+.feat-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+/* Courses */
+.courses { padding: 0 20px 100px; }
+.course-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 14px; cursor: pointer;
+  transition: border-color 0.2s;
+  text-decoration: none; color: inherit;
+}
+.course-card:hover { border-color: rgba(232,160,69,0.4); }
+.course-icon {
+  width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+}
+.course-icon.a { background: rgba(55,138,221,0.15); }
+.course-icon.b { background: rgba(76,186,122,0.15); }
+.course-icon.c { background: rgba(196,107,26,0.15); }
+.course-info { flex: 1; }
+.course-name { font-size: 14px; font-weight: 700; margin-bottom: 3px; font-family: 'Raleway', sans-serif; }
+.course-meta { font-size: 11px; color: var(--muted); }
+.course-arrow { color: var(--muted); font-size: 16px; }
+
+.cta-block {
+  margin: 0 20px 28px;
+  background: linear-gradient(135deg, rgba(232,160,69,0.15), rgba(108,76,212,0.1));
+  border: 1px solid rgba(232,160,69,0.2);
+  border-radius: var(--radius); padding: 20px;
+  text-align: center;
+}
+.cta-title { font-size: 18px; font-weight: 800; margin-bottom: 6px; font-family: 'Raleway', sans-serif; }
+.cta-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+
+@media (min-width: 769px) {
+  .courses { padding-bottom: 40px; }
+}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="page">
+  <div class="layout">
+    <aside class="sidebar" id="desktopSidebar"></aside>
+    <main class="main-content">
+      <div class="content">
+        <div class="hero">
+          <div class="hero-badge"><i class="ti ti-certificate"></i> Дополнительное образование</div>
+          <div class="hero-title">Прокачай навыки с <span>Корочки.есть</span></div>
+          <div class="hero-desc">Онлайн курсы профессионального образования. Запишись, учись, получи сертификат.</div>
+        </div>
+
+        <div class="slider-wrap">
+          <div class="slider-track" id="sliderTrack">
+            <div class="slide">
+              <div class="slide-bg" style="background: linear-gradient(135deg,#1a2a4a,#0d1b35);"><span>💻</span></div>
+              <div class="slide-overlay"></div>
+              <div class="slide-content">
+                <div class="slide-tag">Программирование</div>
+                <div class="slide-title">Основы алгоритмизации</div>
+                <div class="slide-sub">Старт в мире кода — с нуля до первой программы</div>
+              </div>
+            </div>
+            <div class="slide">
+              <div class="slide-bg" style="background: linear-gradient(135deg,#2a1a3a,#1a0d2a);"><span>🎨</span></div>
+              <div class="slide-overlay"></div>
+              <div class="slide-content">
+                <div class="slide-tag">Дизайн</div>
+                <div class="slide-title">Основы веб-дизайна</div>
+                <div class="slide-sub">Создавай красивые и удобные интерфейсы</div>
+              </div>
+            </div>
+            <div class="slide">
+              <div class="slide-bg" style="background: linear-gradient(135deg,#1a3a2a,#0d2a1a);"><span>🗄️</span></div>
+              <div class="slide-overlay"></div>
+              <div class="slide-content">
+                <div class="slide-tag">Базы данных</div>
+                <div class="slide-title">Проектирование БД</div>
+                <div class="slide-sub">От ER-диаграмм до реальных запросов SQL</div>
+              </div>
+            </div>
+            <div class="slide">
+              <div class="slide-bg" style="background: linear-gradient(135deg,#3a2a1a,#2a1a0d);"><span>📜</span></div>
+              <div class="slide-overlay"></div>
+              <div class="slide-content">
+                <div class="slide-tag">Сертификация</div>
+                <div class="slide-title">Получи документ</div>
+                <div class="slide-sub">Официальное удостоверение после прохождения курса</div>
+              </div>
+            </div>
+          </div>
+          <div class="slider-controls">
+            <button class="slider-btn" id="prevBtn"><i class="ti ti-chevron-left"></i></button>
+            <button class="slider-btn" id="nextBtn"><i class="ti ti-chevron-right"></i></button>
+          </div>
+          <div class="slider-dots" id="sliderDots">
+            <div class="dot active" data-i="0"></div>
+            <div class="dot" data-i="1"></div>
+            <div class="dot" data-i="2"></div>
+            <div class="dot" data-i="3"></div>
+          </div>
+        </div>
+
+        <div class="features">
+          <div class="section-title">Почему мы?</div>
+          <div class="section-sub">Лучший выбор для старта</div>
+          <div class="feat-grid">
+            <div class="feat-card">
+              <div class="feat-icon"><i class="ti ti-clock"></i></div>
+              <div class="feat-name">Гибкий график</div>
+              <div class="feat-desc">Учись в удобное время, в своём темпе</div>
+            </div>
+            <div class="feat-card">
+              <div class="feat-icon"><i class="ti ti-certificate"></i></div>
+              <div class="feat-name">Сертификат</div>
+              <div class="feat-desc">Официальный документ по итогам курса</div>
+            </div>
+            <div class="feat-card">
+              <div class="feat-icon"><i class="ti ti-users"></i></div>
+              <div class="feat-name">Поддержка</div>
+              <div class="feat-desc">Эксперты отвечают на вопросы</div>
+            </div>
+            <div class="feat-card">
+              <div class="feat-icon"><i class="ti ti-device-mobile"></i></div>
+              <div class="feat-name">С телефона</div>
+              <div class="feat-desc">Доступно с любого устройства</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cta-block">
+          <div class="cta-title">Готов начать?</div>
+          <div class="cta-sub">Зарегистрируйся и подай первую заявку прямо сейчас</div>
+          <a href="register.html"><button class="btn btn-primary" style="width:auto;padding:12px 32px;display:inline-block;">Начать обучение</button></a>
+        </div>
+
+        <div class="courses">
+          <div class="section-title">Курсы</div>
+          <div class="section-sub">Доступные программы обучения</div>
+          <a class="course-card" href="apply.html">
+            <div class="course-icon a"><i class="ti ti-code" style="font-size:24px;color:#5aaaf0"></i></div>
+            <div class="course-info">
+              <div class="course-name">Основы алгоритмизации и программирования</div>
+              <div class="course-meta">3 месяца · Начальный уровень</div>
+            </div>
+            <i class="ti ti-chevron-right course-arrow"></i>
+          </a>
+          <a class="course-card" href="apply.html">
+            <div class="course-icon b"><i class="ti ti-brush" style="font-size:24px;color:#4cba7a"></i></div>
+            <div class="course-info">
+              <div class="course-name">Основы веб-дизайна</div>
+              <div class="course-meta">2 месяца · Начальный уровень</div>
+            </div>
+            <i class="ti ti-chevron-right course-arrow"></i>
+          </a>
+          <a class="course-card" href="apply.html">
+            <div class="course-icon c"><i class="ti ti-database" style="font-size:24px;color:#e8a045"></i></div>
+            <div class="course-info">
+              <div class="course-name">Основы проектирования баз данных</div>
+              <div class="course-meta">2.5 месяца · Начальный уровень</div>
+            </div>
+            <i class="ti ti-chevron-right course-arrow"></i>
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-logo">🎓 <span>Корочки<span style="color:var(--accent)">.есть</span></span></div>
+    <div class="nav-actions">
+      <a href="login.html"><button class="nav-btn outline">Войти</button></a>
+      <a href="register.html"><button class="nav-btn filled">Регистрация</button></a>
+    </div>
+  </nav>
+
+  <nav class="bottom-nav">
+    <a class="bn-item active" href="index.html"><i class="ti ti-home"></i>Главная</a>
+    <a class="bn-item" href="apply.html"><i class="ti ti-file-plus"></i>Заявка</a>
+    <a class="bn-item" href="requests.html"><i class="ti ti-list"></i>Мои заявки</a>
+    <a class="bn-item" href="login.html"><i class="ti ti-user"></i>Профиль</a>
+  </nav>
+</div>
+
+<script>
+let current = 0;
+const total = 4;
+const track = document.getElementById('sliderTrack');
+const dots = document.querySelectorAll('.dot');
+
+function goTo(n) {
+  current = (n + total) % total;
+  track.style.transform = `translateX(-${current * 100}%)`;
+  dots.forEach((d, i) => d.classList.toggle('active', i === current));
+}
+
+document.getElementById('prevBtn').addEventListener('click', () => goTo(current - 1));
+document.getElementById('nextBtn').addEventListener('click', () => goTo(current + 1));
+dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.i)));
+
+setInterval(() => goTo(current + 1), 3000);
+
+function renderSidebar() {
+  const sidebar = document.getElementById('desktopSidebar');
+  if (!sidebar) return;
+  const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+  const currentPage = 'index.html';
+  
+  let menuItems = [];
+  if (user && user.role === 'admin') {
+    menuItems = [
+      { href: 'admin.html', icon: 'ti ti-dashboard', label: 'Панель админа', active: false },
+      { href: 'index.html', icon: 'ti ti-home', label: 'На сайт', active: true }
+    ];
+  } else {
+    menuItems = [
+      { href: 'index.html', icon: 'ti ti-home', label: 'Главная', active: true },
+      { href: 'apply.html', icon: 'ti ti-file-plus', label: 'Заявка', active: false },
+      { href: 'requests.html', icon: 'ti ti-list', label: 'Мои заявки', active: false },
+      { href: 'login.html', icon: 'ti ti-user', label: 'Профиль', active: false }
+    ];
+  }
+  
+  let userSection = '';
+  if (user && user.role !== 'admin') {
+    const initials = user.fio ? user.fio.split(' ').slice(0,2).map(w=>w[0]).join('') : (user.login ? user.login[0].toUpperCase() : '?');
+    userSection = `<div class="sidebar-user">
+      <div class="sidebar-user-info">
+        <div class="sidebar-avatar">${initials}</div>
+        <div><div class="sidebar-user-name">${user.fio || user.login}</div><div class="sidebar-user-login">@${user.login}</div></div>
+      </div>
+      <button class="sidebar-logout" onclick="logout()"><i class="ti ti-logout"></i> Выйти</button>
+    </div>`;
+  } else if (user && user.role === 'admin') {
+    userSection = `<div class="sidebar-user">
+      <div class="sidebar-user-info">
+        <div class="sidebar-avatar">👑</div>
+        <div><div class="sidebar-user-name">Администратор</div><div class="sidebar-user-login">@${user.login}</div></div>
+      </div>
+      <button class="sidebar-logout" onclick="logout()"><i class="ti ti-logout"></i> Выйти</button>
+    </div>`;
+  } else {
+    userSection = `<div class="sidebar-user"><a href="login.html"><button class="sidebar-logout" style="width:100%"><i class="ti ti-login"></i> Войти</button></a></div>`;
+  }
+  
+  sidebar.innerHTML = `<div class="sidebar-logo">🎓 <span>Корочки<span style="color:var(--accent)">.есть</span></span></div>
+    <div class="sidebar-nav">${menuItems.map(item => `<a href="${item.href}" class="sidebar-item ${item.active ? 'active' : ''}"><i class="${item.icon}"></i><span>${item.label}</span></a>`).join('')}</div>
+    ${userSection}`;
+}
+
+function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+renderSidebar();
+</script>
+</body>
+</html>

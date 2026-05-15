@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Корочки.есть — Подать заявку</title>
+<link rel="stylesheet" href="shared.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+.apply-header { padding: 30px 0 20px; }
+.apply-header .section-title { font-size: 24px; }
+.apply-form { padding-bottom: 40px; }
+.radio-group { display: flex; flex-direction: column; gap: 10px; }
+.radio-option {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px 16px; cursor: pointer;
+  transition: border-color 0.2s;
+}
+.radio-option.selected { border-color: var(--accent); background: rgba(232,160,69,0.05); }
+.radio-option input[type=radio] { display: none; }
+.radio-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color 0.2s; }
+.radio-option.selected .radio-dot { border-color: var(--accent); background: var(--accent); }
+.radio-option.selected .radio-dot::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #0f0e17; }
+.radio-label { font-size: 14px; font-weight: 600; }
+.radio-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.step-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
+.step { display: flex; align-items: center; gap: 8px; flex: 1; font-size: 11px; font-weight: 700; color: var(--muted); }
+.step.active { color: var(--accent); }
+.step.done { color: var(--success); }
+.step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--bg2); border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.step.active .step-num { background: rgba(232,160,69,0.2); border-color: var(--accent); color: var(--accent); }
+.step.done .step-num { background: rgba(76,186,122,0.2); border-color: var(--success); color: var(--success); }
+.step-line { flex: 1; height: 1px; background: var(--border); margin: 0 6px; }
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; opacity: 0; transition: all 0.3s; white-space: nowrap; z-index: 200; color: #fff; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.error { background: var(--danger); }
+.toast.success { background: var(--success); }
+.not-logged { margin: 20px 0; padding: 20px; border-radius: var(--radius); background: rgba(224,92,92,0.08); border: 1px solid rgba(224,92,92,0.2); text-align: center; display: none; }
+.not-logged i { font-size: 32px; color: var(--danger); margin-bottom: 8px; display: block; }
+</style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="page">
+  <div class="layout">
+    <aside class="sidebar" id="desktopSidebar"></aside>
+    <main class="main-content">
+      <div class="content">
+        <div class="apply-header">
+          <div class="section-title">Подать заявку</div>
+          <div class="section-sub">Выберите курс и дату начала обучения</div>
+        </div>
+        <div id="notLoggedBlock" class="not-logged"><i class="ti ti-lock"></i><p>Для подачи заявки необходимо войти в аккаунт</p><a href="login.html"><button class="btn btn-primary" style="width:auto;padding:11px 28px;display:inline-block">Войти</button></a></div>
+        <div class="apply-form" id="applyForm">
+          <div class="step-indicator"><div class="step active"><div class="step-num">1</div><span>Курс</span></div><div class="step-line"></div><div class="step" id="step2"><div class="step-num">2</div><span>Дата</span></div><div class="step-line"></div><div class="step" id="step3"><div class="step-num">3</div><span>Оплата</span></div></div>
+          <div class="form-group"><label class="form-label">Наименование курса</label><select class="form-select" id="course"><option value="">— Выберите курс —</option><option value="Основы алгоритмизации и программирования">Основы алгоритмизации и программирования</option><option value="Основы веб-дизайна">Основы веб-дизайна</option><option value="Основы проектирования баз данных">Основы проектирования баз данных</option></select><div class="form-error" id="courseErr"></div></div>
+          <div class="form-group"><label class="form-label">Дата начала обучения</label><input class="form-input" id="startDate" type="text" placeholder="ДД.ММ.ГГГГ" maxlength="10"><div class="form-error" id="dateErr"></div></div>
+          <div class="form-group"><label class="form-label">Способ оплаты</label><div class="radio-group" id="paymentGroup"><div class="radio-option" onclick="selectPayment(this,'cash')"><input type="radio" name="payment" value="cash"><div class="radio-dot"></div><div><div class="radio-label">💵 Наличными</div><div class="radio-sub">Оплата при встрече с куратором</div></div></div><div class="radio-option" onclick="selectPayment(this,'transfer')"><input type="radio" name="payment" value="transfer"><div class="radio-dot"></div><div><div class="radio-label">📱 Перевод по номеру телефона</div><div class="radio-sub">СБП, любой банк</div></div></div></div><div class="form-error" id="payErr"></div></div>
+          <div class="form-group"><label class="form-label">Комментарий (необязательно)</label><textarea class="form-textarea" id="comment" placeholder="Дополнительная информация..."></textarea></div>
+          <button class="btn btn-primary" onclick="submitApp()" style="margin-top:8px"><i class="ti ti-send" style="margin-right:6px"></i>Отправить заявку</button>
+          <a href="requests.html"><button class="btn btn-outline" style="margin-top:10px">Мои заявки</button></a>
+        </div>
+      </div>
+    </main>
+  </div>
+  <nav class="nav"><a href="index.html" style="display:flex;align-items:center;color:var(--muted)"><i class="ti ti-arrow-left" style="font-size:20px"></i></a><div class="nav-logo">🎓 <span>Корочки<span style="color:var(--accent)">.есть</span></span></div><div style="width:32px"></div></nav>
+  <nav class="bottom-nav"><a class="bn-item" href="index.html"><i class="ti ti-home"></i>Главная</a><a class="bn-item active" href="apply.html"><i class="ti ti-file-plus"></i>Заявка</a><a class="bn-item" href="requests.html"><i class="ti ti-list"></i>Мои заявки</a><a class="bn-item" href="login.html"><i class="ti ti-user"></i>Профиль</a></nav>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let selectedPayment = '';
+window.onload = function() { const user = JSON.parse(localStorage.getItem('currentUser') || 'null'); if (!user || user.role === 'admin') { document.getElementById('applyForm').style.display = 'none'; document.getElementById('notLoggedBlock').style.display = 'block'; } renderSidebar(); };
+document.getElementById('startDate').addEventListener('input', function(e) { let v = e.target.value.replace(/\D/g,''); if (v.length >= 3) v = v.slice(0,2) + '.' + v.slice(2); if (v.length >= 6) v = v.slice(0,5) + '.' + v.slice(5); e.target.value = v.slice(0,10); });
+function selectPayment(el, val) { document.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected')); el.classList.add('selected'); selectedPayment = val; }
+function showToast(msg, type) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast ' + type + ' show'; setTimeout(() => t.classList.remove('show'), 3500); }
+function submitApp() {
+  let valid = true; ['courseErr','dateErr','payErr'].forEach(id => { document.getElementById(id).textContent = ''; document.getElementById(id).classList.remove('show'); });
+  const course = document.getElementById('course').value; const date = document.getElementById('startDate').value; const comment = document.getElementById('comment').value;
+  if (!course) { document.getElementById('courseErr').textContent = 'Выберите курс'; document.getElementById('courseErr').classList.add('show'); document.getElementById('course').classList.add('error'); valid = false; } else { document.getElementById('course').classList.remove('error'); }
+  if (!/^\d{2}\.\d{2}\.\d{4}$/.test(date)) { document.getElementById('dateErr').textContent = 'Введите дату в формате ДД.ММ.ГГГГ'; document.getElementById('dateErr').classList.add('show'); document.getElementById('startDate').classList.add('error'); valid = false; } else { document.getElementById('startDate').classList.remove('error'); }
+  if (!selectedPayment) { document.getElementById('payErr').textContent = 'Выберите способ оплаты'; document.getElementById('payErr').classList.add('show'); valid = false; }
+  if (!valid) return;
+  const user = JSON.parse(localStorage.getItem('currentUser')); const apps = JSON.parse(localStorage.getItem('applications') || '[]');
+  const newApp = { id: Date.now(), userLogin: user.login, userFio: user.fio, course, date, payment: selectedPayment === 'cash' ? 'Наличными' : 'Перевод по телефону', comment, status: 'Новая', createdAt: new Date().toLocaleDateString('ru-RU'), review: null };
+  apps.push(newApp); localStorage.setItem('applications', JSON.stringify(apps)); showToast('✅ Заявка отправлена!', 'success'); setTimeout(() => window.location.href = 'requests.html', 1500);
+}
+function renderSidebar() {
+  const sidebar = document.getElementById('desktopSidebar'); if (!sidebar) return;
+  const user = JSON.parse(localStorage.getItem('currentUser') || 'null'); const currentPage = 'apply.html';
+  let menuItems = []; if (user && user.role === 'admin') { menuItems = [{ href: 'admin.html', icon: 'ti ti-dashboard', label: 'Панель админа', active: false }, { href: 'index.html', icon: 'ti ti-home', label: 'На сайт', active: false }]; }
+  else { menuItems = [{ href: 'index.html', icon: 'ti ti-home', label: 'Главная', active: false }, { href: 'apply.html', icon: 'ti ti-file-plus', label: 'Заявка', active: true }, { href: 'requests.html', icon: 'ti ti-list', label: 'Мои заявки', active: false }, { href: 'login.html', icon: 'ti ti-user', label: 'Профиль', active: false }]; }
+  let userSection = ''; if (user && user.role !== 'admin') { const initials = user.fio ? user.fio.split(' ').slice(0,2).map(w=>w[0]).join('') : (user.login ? user.login[0].toUpperCase() : '?'); userSection = `<div class="sidebar-user"><div class="sidebar-user-info"><div class="sidebar-avatar">${initials}</div><div><div class="sidebar-user-name">${user.fio || user.login}</div><div class="sidebar-user-login">@${user.login}</div></div></div><button class="sidebar-logout" onclick="logout()"><i class="ti ti-logout"></i> Выйти</button></div>`; }
+  else if (user && user.role === 'admin') { userSection = `<div class="sidebar-user"><div class="sidebar-user-info"><div class="sidebar-avatar">👑</div><div><div class="sidebar-user-name">Администратор</div><div class="sidebar-user-login">@${user.login}</div></div></div><button class="sidebar-logout" onclick="logout()"><i class="ti ti-logout"></i> Выйти</button></div>`; }
+  else { userSection = `<div class="sidebar-user"><a href="login.html"><button class="sidebar-logout" style="width:100%"><i class="ti ti-login"></i> Войти</button></a></div>`; }
+  sidebar.innerHTML = `<div class="sidebar-logo">🎓 <span>Корочки<span style="color:var(--accent)">.есть</span></span></div><div class="sidebar-nav">${menuItems.map(item => `<a href="${item.href}" class="sidebar-item ${item.active ? 'active' : ''}"><i class="${item.icon}"></i><span>${item.label}</span></a>`).join('')}</div>${userSection}`;
+}
+function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+</script>
+</body>
+</html> 

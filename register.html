@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Корочки.есть — Регистрация</title>
+<link rel="stylesheet" href="shared.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+.auth-header { padding: 40px 0 24px; text-align: center; }
+.auth-icon { width: 64px; height: 64px; border-radius: 18px; background: rgba(232,160,69,0.15); border: 1px solid rgba(232,160,69,0.2); display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 16px; }
+.auth-title { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+.auth-sub { font-size: 13px; color: var(--muted); }
+.auth-form { padding-bottom: 40px; }
+.toggle-pass { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; padding: 0; }
+.input-wrap { position: relative; }
+.input-wrap .form-input { padding-right: 44px; }
+.divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--muted); font-size: 12px; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.login-link { text-align: center; font-size: 13px; color: var(--muted); margin-top: 16px; }
+.login-link a { color: var(--accent); font-weight: 700; }
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; opacity: 0; transition: all 0.3s; white-space: nowrap; z-index: 200; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.error { background: var(--danger); }
+</style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="page">
+  <div class="layout">
+    <aside class="sidebar" id="desktopSidebar"></aside>
+    <main class="main-content">
+      <div class="content">
+        <div class="auth-header"><div class="auth-icon">📝</div><div class="auth-title">Регистрация</div><div class="auth-sub">Создайте аккаунт, чтобы начать обучение</div></div>
+        <div class="auth-form"><div class="form-group"><label class="form-label">Логин</label><input class="form-input" id="login" type="text" placeholder="Только латиница и цифры, от 6 симв."><div class="form-error" id="loginErr"></div></div>
+        <div class="form-group"><label class="form-label">ФИО</label><input class="form-input" id="fio" type="text" placeholder="Иванов Иван Иванович"><div class="form-error" id="fioErr"></div></div>
+        <div class="form-group"><label class="form-label">Телефон</label><input class="form-input" id="phone" type="tel" placeholder="8(XXX)XXX-XX-XX"><div class="form-error" id="phoneErr"></div></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="email" type="email" placeholder="you@example.com"><div class="form-error" id="emailErr"></div></div>
+        <div class="form-group"><label class="form-label">Пароль</label><div class="input-wrap"><input class="form-input" id="password" type="password" placeholder="Минимум 8 символов"><button class="toggle-pass" onclick="togglePass('password','passIcon')" type="button"><i class="ti ti-eye" id="passIcon"></i></button></div><div class="form-error" id="passErr"></div></div>
+        <div class="form-group"><label class="form-label">Подтвердить пароль</label><div class="input-wrap"><input class="form-input" id="password2" type="password" placeholder="Повторите пароль"><button class="toggle-pass" onclick="togglePass('password2','passIcon2')" type="button"><i class="ti ti-eye" id="passIcon2"></i></button></div><div class="form-error" id="pass2Err"></div></div>
+        <div class="divider">или</div><button class="btn btn-primary" onclick="doRegister()">Зарегистрироваться</button>
+        <div class="login-link" style="margin-top:20px">Уже есть аккаунт? <a href="login.html">Войти</a></div></div>
+      </div>
+    </main>
+  </div>
+  <nav class="nav"><a href="index.html" style="display:flex;align-items:center;gap:6px;color:var(--muted)"><i class="ti ti-arrow-left" style="font-size:20px"></i></a><div class="nav-logo">🎓 <span>Корочки<span style="color:var(--accent)">.есть</span></span></div><div style="width:32px"></div></nav>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+function togglePass(id, iconId) { const inp = document.getElementById(id); const ico = document.getElementById(iconId); if (inp.type === 'password') { inp.type = 'text'; ico.className = 'ti ti-eye-off'; } else { inp.type = 'password'; ico.className = 'ti ti-eye'; } }
+function showErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('show'); document.getElementById(id.replace('Err','')) && document.getElementById(id.replace('Err','')).classList.add('error'); }
+function clearErr(id) { const el = document.getElementById(id); el.textContent = ''; el.classList.remove('show'); }
+function clearAllErrors() { ['loginErr','fioErr','phoneErr','emailErr','passErr','pass2Err'].forEach(clearErr); ['login','fio','phone','email','password','password2'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('error'); }); }
+function showToast(msg, isErr = false) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast' + (isErr ? ' error' : '') + ' show'; setTimeout(() => t.classList.remove('show'), 3000); }
+function doRegister() {
+  clearAllErrors(); const login = document.getElementById('login').value.trim(); const fio = document.getElementById('fio').value.trim(); const phone = document.getElementById('phone').value.trim(); const email = document.getElementById('email').value.trim(); const pass = document.getElementById('password').value; const pass2 = document.getElementById('password2').value; let valid = true;
+  if (!/^[a-zA-Z0-9]{6,}$/.test(login)) { showErr('loginErr', 'Только латиница и цифры, минимум 6 символов'); document.getElementById('login').classList.add('error'); valid = false; }
+  if (!/^[А-Яа-яЁё\s]{2,}$/.test(fio)) { showErr('fioErr', 'Только кириллица и пробелы'); document.getElementById('fio').classList.add('error'); valid = false; }
+  if (!/^8\(\d{3}\)\d{3}-\d{2}-\d{2}$/.test(phone)) { showErr('phoneErr', 'Формат: 8(XXX)XXX-XX-XX'); document.getElementById('phone').classList.add('error'); valid = false; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('emailErr', 'Некорректный адрес электронной почты'); document.getElementById('email').classList.add('error'); valid = false; }
+  if (pass.length < 8) { showErr('passErr', 'Минимум 8 символов'); document.getElementById('password').classList.add('error'); valid = false; }
+  if (pass !== pass2) { showErr('pass2Err', 'Пароли не совпадают'); document.getElementById('password2').classList.add('error'); valid = false; }
+  if (!valid) return;
+  const users = JSON.parse(localStorage.getItem('users') || '[]'); if (users.find(u => u.login === login)) { showErr('loginErr', 'Этот логин уже занят'); document.getElementById('login').classList.add('error'); return; }
+  users.push({ login, fio, phone, email, pass }); localStorage.setItem('users', JSON.stringify(users)); showToast('✅ Регистрация успешна!'); setTimeout(() => window.location.href = 'login.html', 1500);
+}
+function renderSidebar() {
+  const sidebar = document.getElementById('desktopSidebar'); if (!sidebar) return;
+  const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+  const menuItems = [{ href: 'index.html', icon: 'ti ti-home', label: 'Главная', active: false }, { href: 'apply.html', icon: 'ti ti-file-plus', label: 'Заявка', active: false }, { href: 'requests.html', icon: 'ti ti-list', label: 'Мои заявки', active: false }, { href: 'login.html', icon: 'ti ti-user', label: 'Профиль', active: true }];
+  let userSection = ''; if (user && user.role !== 'admin') { const initials = user.fio ? user.fio.split(' ').slice(0,2).map(w=>w[0]).join('') : (user.login ? user.login[0].toUpperCase() : '?'); userSection = `<div class="sidebar-user"><div class="sidebar-user-info"><div class="sidebar-avatar">${initials}</div><div><div class="sidebar-user-name">${user.fio || user.login}</div><div class="sidebar-user-login">@${user.login}</div></div></div><button class="sidebar-logout" onclick="logout()"><i class="ti ti-logout"></i> Выйти</button></div>`; }
+  else if (user && user.role === 'admin') { userSection = `<div class="sidebar-user"><div class="sidebar-user-info"><div class="sidebar-avatar">👑</div><div><div class="sidebar-user-name">Администратор</div><div class="sidebar-user-login">@${user.login}</div></div></div><button class="sidebar-logout" onclick="logout()"><i class="ti ti-logout"></i> Выйти</button></div>`; }
+  else { userSection = `<div class="sidebar-user"><a href="login.html"><button class="sidebar-logout" style="width:100%"><i class="ti ti-login"></i> Войти</button></a></div>`; }
+  sidebar.innerHTML = `<div class="sidebar-logo">🎓 <span>Корочки<span style="color:var(--accent)">.есть</span></span></div><div class="sidebar-nav">${menuItems.map(item => `<a href="${item.href}" class="sidebar-item ${item.active ? 'active' : ''}"><i class="${item.icon}"></i><span>${item.label}</span></a>`).join('')}</div>${userSection}`;
+}
+function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+renderSidebar();
+</script>
+</body>
+</html>

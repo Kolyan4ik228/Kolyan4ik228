@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Корочки.есть — Панель администратора</title>
+<link rel="stylesheet" href="shared.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+.admin-header { padding: 24px 0 0; }
+.admin-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.admin-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(224,92,92,0.12); border: 1px solid rgba(224,92,92,0.25);
+  color: #e05c5c; padding: 4px 12px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+}
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+}
+.stat-val { font-size: 24px; font-weight: 800; font-family: 'Raleway', sans-serif; }
+.stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.stat-card.s-blue .stat-val { color: #5aaaf0; }
+.stat-card.s-green .stat-val { color: var(--success); }
+.stat-card.s-amber .stat-val { color: var(--accent); }
+.filters { padding: 0 0 12px; display: flex; gap: 8px; overflow-x: auto; flex-wrap: wrap; }
+.filters::-webkit-scrollbar { display: none; }
+.filter-btn {
+  padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  border: 1.5px solid var(--border); background: transparent; color: var(--muted);
+  cursor: pointer; white-space: nowrap; transition: all 0.2s;
+  font-family: 'Nunito', sans-serif; flex-shrink: 0;
+}
+.filter-btn.active { background: var(--accent); color: #0f0e17; border-color: var(--accent); }
+.search-wrap { position: relative; margin-bottom: 12px; }
+.search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--muted); }
+.search-wrap input { padding-left: 38px; }
+.admin-list { padding-bottom: 20px; }
+.admin-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px; margin-bottom: 10px;
+  position: relative; overflow: hidden;
+}
+.admin-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.admin-card.s-new::before { background: #5aaaf0; }
+.admin-card.s-active::before { background: var(--success); }
+.admin-card.s-done::before { background: var(--accent); }
+.ac-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.ac-id { font-size: 11px; color: var(--muted); }
+.ac-user { font-size: 14px; font-weight: 700; font-family: 'Raleway', sans-serif; }
+.ac-course { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.ac-row { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.ac-meta { font-size: 11px; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
+.ac-meta span { display: flex; align-items: center; gap: 4px; }
+.ac-actions { display: flex; gap: 6px; }
+.status-btn {
+  padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700;
+  border: none; cursor: pointer; transition: all 0.2s; font-family: 'Nunito', sans-serif;
+  white-space: nowrap;
+}
+.btn-active { background: rgba(76,186,122,0.15); color: var(--success); }
+.btn-active:hover { background: rgba(76,186,122,0.3); }
+.btn-done { background: rgba(232,160,69,0.15); color: var(--accent); }
+.btn-done:hover { background: rgba(232,160,69,0.3); }
+.btn-new { background: rgba(55,138,221,0.15); color: #5aaaf0; }
+.btn-new:hover { background: rgba(55,138,221,0.3); }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 20px 0; }
+.page-btn {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text); font-size: 13px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; font-family: 'Nunito', sans-serif;
+}
+.page-btn.active { background: var(--accent); color: #0f0e17; border-color: var(--accent); }
+.page-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 500; padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; width: 100%; max-width: 320px;
+  transform: scale(0.95); transition: transform 0.25s;
+}
+.modal-overlay.open .modal { transform: scale(1); }
+.modal-title { font-size: 18px; font-weight: 800; margin-bottom: 6px; font-family: 'Raleway', sans-serif; }
+.modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+.modal-btns { display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
+  padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 700;
+  opacity: 0; transition: all 0.3s; white-space: nowrap; z-index: 600; color: #fff;
+  background: var(--success);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.empty-state { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 14px; }
+.not-admin { margin: 60px 0; text-align: center; padding: 32px; background: rgba(224,92,92,0.06); border: 1px solid rgba(224,92,92,0.15); border-radius: var(--radius); }
+.not-admin i { font-size: 40px; color: var(--danger); margin-bottom: 12px; display: block; }
+@media (min-width: 769px) {
+  .admin-header { padding: 0; }
+  .stats-grid { gap: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="page">
+  <div class="layout">
+    <aside class="sidebar" id="desktopSidebar"></aside>
+    <main class="main-content">
+      <div class="content" id="mainContent"></div>
+    </main>
+  </div>
+  <nav class="nav"><div class="nav-logo">🎓 <span>Корочки<span style="color:var(--accent)">.есть</span></span></div><button class="nav-btn outline" onclick="logout()">Выйти</button></nav>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Изменить статус</div>
+    <div class="modal-sub" id="modalSub">Выберите новый статус для заявки</div>
+    <div class="modal-btns">
+      <button class="status-btn btn-new" style="width:100%;padding:10px" onclick="changeStatus('Новая')">📋 Новая</button>
+      <button class="status-btn btn-active" style="width:100%;padding:10px" onclick="changeStatus('Идет обучение')">📚 Идет обучение</button>
+      <button class="status-btn btn-done" style="width:100%;padding:10px" onclick="changeStatus('Обучение завершено')">🎓 Обучение завершено</button>
+    </div>
+    <button class="btn btn-outline" style="margin-top:12px" onclick="closeModal()">Отмена</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+let currentFilter = 'all';
+let currentPage = 1;
+const PER_PAGE = 5;
+let selectedAppId = null;
+let searchQuery = '';
+
+function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+function openModal(appId) { selectedAppId = appId; const apps = JSON.parse(localStorage.getItem('applications') || '[]'); const app = apps.find(a => a.id === appId); document.getElementById('modalSub').textContent = `Заявка: ${app.course}`; document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); selectedAppId = null; }
+function changeStatus(newStatus) { const apps = JSON.parse(localStorage.getItem('applications') || '[]'); const idx = apps.findIndex(a => a.id === selectedAppId); if (idx !== -1) { apps[idx].status = newStatus; localStorage.setItem('applications', JSON.stringify(apps)); } closeModal(); showToast('✅ Статус обновлён: ' + newStatus); renderPage(); }
+document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === document.getElementById('modalOverlay')) closeModal(); });
+function statusClass(s) { if (s === 'Новая') return 's-new'; if (s === 'Идет обучение') return 's-active'; return 's-done'; }
+
+function renderPage() {
+  if (!user || user.role !== 'admin') {
+    document.getElementById('mainContent').innerHTML = `<div class="not-admin"><i class="ti ti-shield-off"></i><p style="color:var(--muted);margin-bottom:14px">Доступ только для администратора</p><a href="login.html"><button class="btn btn-primary" style="width:auto;padding:11px 28px;display:inline-block">Войти</button></a></div>`;
+    renderSidebar(); return;
+  }
+  let apps = JSON.parse(localStorage.getItem('applications') || '[]');
+  const total = apps.length; const countNew = apps.filter(a => a.status === 'Новая').length; const countActive = apps.filter(a => a.status === 'Идет обучение').length; const countDone = apps.filter(a => a.status === 'Обучение завершено').length;
+  let filtered = [...apps]; if (currentFilter !== 'all') filtered = filtered.filter(a => a.status === currentFilter); if (searchQuery) { const q = searchQuery.toLowerCase(); filtered = filtered.filter(a => a.userLogin.toLowerCase().includes(q) || (a.userFio||'').toLowerCase().includes(q) || a.course.toLowerCase().includes(q)); }
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE)); if (currentPage > totalPages) currentPage = totalPages;
+  const paged = filtered.slice().reverse().slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+  let html = `<div class="admin-header"><div class="admin-title-row"><div><div class="section-title">Панель админа</div><div class="section-sub">Управление заявками</div></div><div class="admin-badge"><i class="ti ti-shield"></i> Администратор</div></div></div>
+  <div class="stats-grid"><div class="stat-card s-blue"><div class="stat-val">${total}</div><div class="stat-label">Всего заявок</div></div><div class="stat-card s-blue"><div class="stat-val">${countNew}</div><div class="stat-label">Новых</div></div><div class="stat-card s-green"><div class="stat-val">${countActive}</div><div class="stat-label">На обучении</div></div><div class="stat-card s-amber"><div class="stat-val">${countDone}</div><div class="stat-label">Завершено</div></div></div>
+  <div class="search-wrap"><i class="ti ti-search"></i><input class="form-input" id="searchInput" placeholder="Поиск по пользователю, курсу..." value="${searchQuery}" oninput="doSearch(this.value)"></div>
+  <div class="filters"><button class="filter-btn ${currentFilter==='all'?'active':''}" onclick="setFilter('all')">Все (${total})</button><button class="filter-btn ${currentFilter==='Новая'?'active':''}" onclick="setFilter('Новая')">Новые (${countNew})</button><button class="filter-btn ${currentFilter==='Идет обучение'?'active':''}" onclick="setFilter('Идет обучение')">Обучение (${countActive})</button><button class="filter-btn ${currentFilter==='Обучение завершено'?'active':''}" onclick="setFilter('Обучение завершено')">Завершено (${countDone})</button></div>
+  <div class="admin-list">`;
+  if (!paged.length) { html += `<div class="empty-state"><i class="ti ti-clipboard-x" style="font-size:36px;display:block;margin-bottom:10px"></i>Заявок не найдено</div>`; } else { paged.forEach(app => { const badgeClass = app.status === 'Новая' ? 'badge-new' : app.status === 'Идет обучение' ? 'badge-active' : 'badge-done'; html += `<div class="admin-card ${statusClass(app.status)}"><div class="ac-top"><span class="ac-id">#${String(app.id).slice(-6)}</span><span class="badge ${badgeClass}">${app.status}</span></div><div class="ac-user">${app.userFio || app.userLogin}</div><div class="ac-course">📚 ${app.course}</div><div class="ac-row"><div class="ac-meta"><span><i class="ti ti-calendar"></i>${app.date}</span><span><i class="ti ti-credit-card"></i>${app.payment}</span><span><i class="ti ti-user"></i>@${app.userLogin}</span><span><i class="ti ti-clock"></i>${app.createdAt}</span></div><div class="ac-actions"><button class="status-btn btn-active" onclick="openModal(${app.id})"><i class="ti ti-edit"></i> Статус</button><button class="status-btn btn-new" onclick="deleteApp(${app.id})" style="background:rgba(224,92,92,0.12);color:var(--danger)"><i class="ti ti-trash"></i> Удалить</button></div></div>${app.review ? `<div style="margin-top:10px;padding:8px 10px;background:var(--bg2);border-radius:8px;font-size:12px;color:var(--muted);border-left:2px solid var(--accent)"><strong style="color:var(--accent)">Отзыв:</strong> ${app.review}</div>` : ''}</div>`; }); }
+  html += '</div>';
+  if (totalPages > 1) { html += `<div class="pagination"><button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage<=1?'disabled':''} style="${currentPage<=1?'opacity:0.3':''}">&lt;</button>`; for (let i = 1; i <= totalPages; i++) { html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`; } html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage>=totalPages?'disabled':''} style="${currentPage>=totalPages?'opacity:0.3':''}">&gt;</button></div>`; }
+  document.getElementById('mainContent').innerHTML = html; renderSidebar();
+}
+function setFilter(f) { currentFilter = f; currentPage = 1; renderPage(); }
+function goPage(p) { currentPage = p; renderPage(); window.scrollTo(0,0); }
+function doSearch(v) { searchQuery = v; currentPage = 1; renderPage(); }
+function deleteApp(id) { if (!confirm('Удалить эту заявку?')) return; let apps = JSON.parse(localStorage.getItem('applications') || '[]'); apps = apps.filter(a => a.id !== id); localStorage.setItem('applications', JSON.stringify(apps)); showToast('🗑️ Заявка удалена'); renderPage(); }
+function renderSidebar() {
+  const sidebar = document.getElementById('desktopSidebar'); if (!sidebar) return;
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+  const menuItems = [{ href: 'admin.html', icon: 'ti ti-dashboard', label: 'Панель админа', active: true }, { href: 'index.html', icon: 'ti ti-home', label: 'На сайт', active: false }];
+  let userSection = '';
+  if (currentUser && currentUser.role === 'admin') { userSection = `<div class="sidebar-user"><div class="sidebar-user-info"><div class="sidebar-avatar">👑</div><div><div class="sidebar-user-name">Администратор</div><div class="sidebar-user-login">@${currentUser.login}</div></div></div><button class="sidebar-logout" onclick="logout()"><i class="ti ti-logout"></i> Выйти</button></div>`; }
+  else { userSection = `<div class="sidebar-user"><a href="login.html"><button class="sidebar-logout" style="width:100%"><i class="ti ti-login"></i> Войти</button></a></div>`; }
+  sidebar.innerHTML = `<div class="sidebar-logo">🎓 <span>Корочки<span style="color:var(--accent)">.есть</span></span></div><div class="sidebar-nav">${menuItems.map(item => `<a href="${item.href}" class="sidebar-item ${item.active ? 'active' : ''}"><i class="${item.icon}"></i><span>${item.label}</span></a>`).join('')}</div>${userSection}`;
+}
+renderPage();
+</script>
+</body>
+</html>

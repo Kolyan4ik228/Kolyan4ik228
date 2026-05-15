@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Корочки.есть — Мои заявки</title>
+<link rel="stylesheet" href="shared.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+.requests-header { padding: 28px 0 16px; }
+.user-greeting { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.user-avatar { width: 42px; height: 42px; border-radius: 12px; background: rgba(232,160,69,0.15); border: 1px solid rgba(232,160,69,0.2); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: var(--accent); font-family: 'Raleway', sans-serif; }
+.user-name { font-size: 15px; font-weight: 700; }
+.user-sub { font-size: 12px; color: var(--muted); }
+.logout-btn { margin-left: auto; background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'Nunito', sans-serif; }
+.logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+.requests-list { padding-bottom: 40px; }
+.req-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; position: relative; overflow: hidden; }
+.req-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.req-card.status-new::before { background: #5aaaf0; }
+.req-card.status-active::before { background: var(--success); }
+.req-card.status-done::before { background: var(--accent); }
+.req-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.req-course { font-size: 14px; font-weight: 700; font-family: 'Raleway', sans-serif; flex: 1; margin-right: 8px; }
+.req-meta { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+.req-meta span { display: flex; align-items: center; gap: 5px; }
+.req-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+.review-block { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.review-label { font-size: 11px; color: var(--muted); margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.review-text { background: var(--bg2); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: rgba(240,236,230,0.8); font-style: italic; border-left: 2px solid var(--accent); }
+.review-form { display: flex; gap: 8px; flex-wrap: wrap; }
+.review-form textarea { flex: 1; padding: 10px 12px; border-radius: 8px; background: var(--bg2); border: 1.5px solid var(--border); color: var(--text); font-size: 13px; font-family: 'Nunito', sans-serif; resize: none; height: 70px; outline: none; transition: border-color 0.2s; }
+.review-form textarea:focus { border-color: var(--accent); }
+.review-submit { padding: 9px 14px; border-radius: 8px; background: var(--accent); color: #0f0e17; border: none; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; font-family: 'Nunito', sans-serif; transition: background 0.2s; }
+.review-submit:hover { background: #f0b060; }
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.empty-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; opacity: 0; transition: all 0.3s; white-space: nowrap; z-index: 200; color: #fff; background: var(--success); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.not-logged { margin: 40px 0; padding: 32px; border-radius: var(--radius); background: rgba(232,160,69,0.06); border: 1px solid rgba(232,160,69,0.15); text-align: center; }
+.not-logged i { font-size: 40px; color: var(--accent); margin-bottom: 12px; display: block; }
+</style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="page">
+  <div class="layout">
+    <aside class="sidebar" id="desktopSidebar"></aside>
+    <main class="main-content">
+      <div class="content" id="mainContent"></div>
+    </main>
+  </div>
+  <nav class="nav"><div class="nav-logo">🎓 <span>Корочки<span style="color:var(--accent)">.есть</span></span></div><div class="nav-actions"><a href="apply.html"><button class="nav-btn filled">+ Заявка</button></a></div></nav>
+  <nav class="bottom-nav"><a class="bn-item" href="index.html"><i class="ti ti-home"></i>Главная</a><a class="bn-item" href="apply.html"><i class="ti ti-file-plus"></i>Заявка</a><a class="bn-item active" href="requests.html"><i class="ti ti-list"></i>Мои заявки</a><a class="bn-item" href="login.html"><i class="ti ti-user"></i>Профиль</a></nav>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+const main = document.getElementById('mainContent');
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+function submitReview(appId) { const val = document.getElementById('rev_' + appId).value.trim(); if (!val) return; const apps = JSON.parse(localStorage.getItem('applications') || '[]'); const idx = apps.findIndex(a => a.id === appId); if (idx !== -1) { apps[idx].review = val; localStorage.setItem('applications', JSON.stringify(apps)); } showToast('✅ Отзыв опубликован!'); renderPage(); }
+function statusClass(s) { if (s === 'Новая') return 'status-new'; if (s === 'Идет обучение') return 'status-active'; return 'status-done'; }
+function renderReview(app) {
+  if (app.review) { return `<div class="review-block"><div class="review-label"><i class="ti ti-star" style="color:var(--accent)"></i> Ваш отзыв</div><div class="review-text">${app.review}</div></div>`; }
+  if (app.status === 'Обучение завершено') { return `<div class="review-block"><div class="review-label">Оставить отзыв о курсе</div><div class="review-form"><textarea id="rev_${app.id}" placeholder="Расскажите о своём опыте..."></textarea><button class="review-submit" onclick="submitReview(${app.id})">Отправить</button></div></div>`; }
+  return `<div style="font-size:11px;color:var(--muted);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><i class="ti ti-info-circle" style="margin-right:4px"></i>Отзыв доступен после завершения курса</div>`;
+}
+function renderPage() {
+  if (!user || user.role === 'admin') { main.innerHTML = `<div class="not-logged"><i class="ti ti-lock"></i><p>Войдите в аккаунт, чтобы просматривать свои заявки</p><a href="login.html"><button class="btn btn-primary" style="width:auto;padding:11px 28px;display:inline-block">Войти</button></a></div>`; renderSidebar(); return; }
+  const initials = user.fio ? user.fio.split(' ').slice(0,2).map(w=>w[0]).join('') : user.login[0].toUpperCase();
+  const apps = JSON.parse(localStorage.getItem('applications') || '[]').filter(a => a.userLogin === user.login);
+  let html = `<div class="requests-header"><div class="user-greeting"><div class="user-avatar">${initials}</div><div><div class="user-name">${user.fio || user.login}</div><div class="user-sub">@${user.login}</div></div><button class="logout-btn" onclick="logout()"><i class="ti ti-logout"></i> Выйти</button></div><div class="section-title">Мои заявки</div><div class="section-sub">${apps.length ? apps.length + ' заявок' : 'Нет активных заявок'}</div></div><div class="requests-list">`;
+  if (!apps.length) { html += `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Заявок пока нет</div><div class="empty-sub">Подайте первую заявку на обучение</div><a href="apply.html"><button class="btn btn-primary" style="width:auto;padding:12px 32px;display:inline-block">Подать заявку</button></a></div>`; }
+  else { apps.slice().reverse().forEach(app => { const badgeClass = app.status === 'Новая' ? 'badge-new' : app.status === 'Идет обучение' ? 'badge-active' : 'badge-done'; html += `<div class="req-card ${statusClass(app.status)}"><div class="req-top"><div class="req-course">${app.course}</div><span class="badge ${badgeClass}">${app.status}</span></div><div class="req-meta"><span><i class="ti ti-calendar"></i>Начало: ${app.date}</span><span><i class="ti ti-credit-card"></i>${app.payment}</span><span><i class="ti ti-clock"></i>Подана: ${app.createdAt}</span></div>${app.comment ? `<div style="font-size:12px;color:var(--muted);margin-top:8px;padding:8px 10px;background:var(--bg2);border-radius:8px">${app.comment}</div>` : ''}${renderReview(app)}</div>`; }); }
+  html += '</div>'; main.innerHTML = html; renderSidebar();
+}
+function renderSidebar() {
+  const sidebar = document.getElementById('desktopSidebar'); if (!sidebar) return;
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+  let menuItems = []; if (currentUser && currentUser.role === 'admin') { menuItems = [{ href: 'admin.html', icon: 'ti ti-dashboard', label: 'Панель админа', active: false }, { href: 'index.html', icon: 'ti ti-home', label: 'На сайт', active: false }]; }
+  else { menuItems = [{ href: 'index.html', icon: 'ti ti-home', label: 'Главная', active: false }, { href: 'apply.html', icon: 'ti ti-file-plus', label: 'Заявка', active: false }, { href: 'requests.html', icon: 'ti ti-list', label: 'Мои заявки', active: true }, { href: 'login.html', icon: 'ti ti-user', label: 'Профиль', active: false }]; }
+  let userSection = ''; if (currentUser && currentUser.role !== 'admin') { const initials = currentUser.fio ? currentUser.fio.split(' ').slice(0,2).map(w=>w[0]).join('') : (currentUser.login ? currentUser.login[0].toUpperCase() : '?'); userSection = `<div class="sidebar-user"><div class="sidebar-user-info"><div class="sidebar-avatar">${initials}</div><div><div class="sidebar-user-name">${currentUser.fio || currentUser.login}</div><div class="sidebar-user-login">@${currentUser.login}</div></div></div><button class="sidebar-logout" onclick="logout()"><i class="ti ti-logout"></i> Выйти</button></div>`; }
+  else if (currentUser && currentUser.role === 'admin') { userSection = `<div class="sidebar-user"><div class="sidebar-user-info"><div class="sidebar-avatar">👑</div><div><div class="sidebar-user-name">Администратор</div><div class="sidebar-user-login">@${currentUser.login}</div></div></div><button class="sidebar-logout" onclick="logout()"><i class="ti ti-logout"></i> Выйти</button></div>`; }
+  else { userSection = `<div class="sidebar-user"><a href="login.html"><button class="sidebar-logout" style="width:100%"><i class="ti ti-login"></i> Войти</button></a></div>`; }
+  sidebar.innerHTML = `<div class="sidebar-logo">🎓 <span>Корочки<span style="color:var(--accent)">.есть</span></span></div><div class="sidebar-nav">${menuItems.map(item => `<a href="${item.href}" class="sidebar-item ${item.active ? 'active' : ''}"><i class="${item.icon}"></i><span>${item.label}</span></a>`).join('')}</div>${userSection}`;
+}
+renderPage();
+</script>
+</body>
+</html>

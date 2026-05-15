@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Корочки.есть — Авторизация</title>
+<link rel="stylesheet" href="shared.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+.auth-header { padding: 48px 0 28px; text-align: center; }
+.auth-icon { width: 72px; height: 72px; border-radius: 20px; background: rgba(232,160,69,0.15); border: 1px solid rgba(232,160,69,0.2); display: flex; align-items: center; justify-content: center; font-size: 34px; margin: 0 auto 20px; }
+.auth-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+.auth-sub { font-size: 13px; color: var(--muted); }
+.auth-form { padding-bottom: 40px; }
+.toggle-pass { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; }
+.input-wrap { position: relative; }
+.input-wrap .form-input { padding-right: 44px; }
+.reg-link { text-align: center; font-size: 13px; color: var(--muted); margin-top: 20px; }
+.reg-link a { color: var(--accent); font-weight: 700; }
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; opacity: 0; transition: all 0.3s; white-space: nowrap; z-index: 200; color: #fff; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.error { background: var(--danger); }
+.toast.success { background: var(--success); }
+.admin-hint { background: rgba(55,138,221,0.08); border: 1px solid rgba(55,138,221,0.2); border-radius: var(--radius-sm); padding: 12px 14px; margin: 16px 0; font-size: 12px; color: var(--muted); }
+.admin-hint strong { color: #5aaaf0; }
+</style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="page">
+  <div class="layout">
+    <aside class="sidebar" id="desktopSidebar"></aside>
+    <main class="main-content">
+      <div class="content">
+        <div class="auth-header"><div class="auth-icon">🔑</div><div class="auth-title">Добро пожаловать</div><div class="auth-sub">Войдите в свой аккаунт, чтобы продолжить</div></div>
+        <div class="auth-form"><div class="form-group"><label class="form-label">Логин</label><input class="form-input" id="login" type="text" placeholder="Введите логин"><div class="form-error" id="loginErr"></div></div>
+        <div class="form-group"><label class="form-label">Пароль</label><div class="input-wrap"><input class="form-input" id="password" type="password" placeholder="Введите пароль"><button class="toggle-pass" onclick="togglePass()" type="button"><i class="ti ti-eye" id="passIcon"></i></button></div><div class="form-error" id="passErr"></div></div>
+        <div class="admin-hint"><strong>Панель администратора:</strong> логин <strong>Admin</strong>, пароль <strong>KorokNET</strong></div>
+        <button class="btn btn-primary" onclick="doLogin()">Войти</button><div class="reg-link">Ещё не зарегистрированы? <a href="register.html">Регистрация</a></div></div>
+      </div>
+    </main>
+  </div>
+  <nav class="nav"><a href="index.html" style="display:flex;align-items:center;gap:6px;color:var(--muted)"><i class="ti ti-arrow-left" style="font-size:20px"></i></a><div class="nav-logo">🎓 <span>Корочки<span style="color:var(--accent)">.есть</span></span></div><div style="width:32px"></div></nav>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+function togglePass() { const inp = document.getElementById('password'); const ico = document.getElementById('passIcon'); if (inp.type === 'password') { inp.type = 'text'; ico.className = 'ti ti-eye-off'; } else { inp.type = 'password'; ico.className = 'ti ti-eye'; } }
+function showToast(msg, type) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast ' + type + ' show'; setTimeout(() => t.classList.remove('show'), 3000); }
+function doLogin() {
+  const login = document.getElementById('login').value.trim(); const pass = document.getElementById('password').value; let valid = true;
+  ['loginErr','passErr'].forEach(id => { document.getElementById(id).textContent = ''; document.getElementById(id).classList.remove('show'); }); ['login','password'].forEach(id => document.getElementById(id).classList.remove('error'));
+  if (!login) { document.getElementById('loginErr').textContent = 'Введите логин'; document.getElementById('loginErr').classList.add('show'); document.getElementById('login').classList.add('error'); valid = false; }
+  if (!pass) { document.getElementById('passErr').textContent = 'Введите пароль'; document.getElementById('passErr').classList.add('show'); document.getElementById('password').classList.add('error'); valid = false; }
+  if (!valid) return;
+  if (login === 'Admin' && pass === 'KorokNET') { localStorage.setItem('currentUser', JSON.stringify({ login: 'Admin', role: 'admin', fio: 'Администратор' })); showToast('✅ Вход выполнен', 'success'); setTimeout(() => window.location.href = 'admin.html', 1200); return; }
+  const users = JSON.parse(localStorage.getItem('users') || '[]'); const user = users.find(u => u.login === login && u.pass === pass);
+  if (!user) { document.getElementById('passErr').textContent = 'Неверный логин или пароль'; document.getElementById('passErr').classList.add('show'); document.getElementById('login').classList.add('error'); document.getElementById('password').classList.add('error'); return; }
+  localStorage.setItem('currentUser', JSON.stringify({ login: user.login, fio: user.fio, role: 'user' })); showToast('✅ Вход выполнен', 'success'); setTimeout(() => window.location.href = 'requests.html', 1200);
+}
+function renderSidebar() {
+  const sidebar = document.getElementById('desktopSidebar'); if (!sidebar) return;
+  const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+  const menuItems = [{ href: 'index.html', icon: 'ti ti-home', label: 'Главная', active: false }, { href: 'apply.html', icon: 'ti ti-file-plus', label: 'Заявка', active: false }, { href: 'requests.html', icon: 'ti ti-list', label: 'Мои заявки', active: false }, { href: 'login.html', icon: 'ti ti-user', label: 'Профиль', active: true }];
+  let userSection = ''; if (user && user.role !== 'admin') { const initials = user.fio ? user.fio.split(' ').slice(0,2).map(w=>w[0]).join('') : (user.login ? user.login[0].toUpperCase() : '?'); userSection = `<div class="sidebar-user"><div class="sidebar-user-info"><div class="sidebar-avatar">${initials}</div><div><div class="sidebar-user-name">${user.fio || user.login}</div><div class="sidebar-user-login">@${user.login}</div></div></div><button class="sidebar-logout" onclick="logout()"><i class="ti ti-logout"></i> Выйти</button></div>`; }
+  else if (user && user.role === 'admin') { userSection = `<div class="sidebar-user"><div class="sidebar-user-info"><div class="sidebar-avatar">👑</div><div><div class="sidebar-user-name">Администратор</div><div class="sidebar-user-login">@${user.login}</div></div></div><button class="sidebar-logout" onclick="logout()"><i class="ti ti-logout"></i> Выйти</button></div>`; }
+  else { userSection = `<div class="sidebar-user"><a href="login.html"><button class="sidebar-logout" style="width:100%"><i class="ti ti-login"></i> Войти</button></a></div>`; }
+  sidebar.innerHTML = `<div class="sidebar-logo">🎓 <span>Корочки<span style="color:var(--accent)">.есть</span></span></div><div class="sidebar-nav">${menuItems.map(item => `<a href="${item.href}" class="sidebar-item ${item.active ? 'active' : ''}"><i class="${item.icon}"></i><span>${item.label}</span></a>`).join('')}</div>${userSection}`;
+}
+function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+renderSidebar();
+</script>
+</body>
+</html>
